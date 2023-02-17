@@ -31,6 +31,13 @@ app.use("/",productRouter)
 app.use("/",adminRouter)
 
 
+
+// welcome side
+app.get('/',(req,res)=>{
+    res.status(200).send("welcome to E-commerce Api")
+})
+
+
 app.use(fileUpload({
     useTempFiles:true
 }))
