@@ -13,40 +13,40 @@ import adminRouter from "./routes/admin.js";
 import *as path from 'path'
 import fileUpload from 'express-fileupload'
 dotenv.config()
-const app=express();
+const index=express();
 
 
 // midleware
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+index.use(express.json());
+index.use(express.urlencoded({extended:true}));
 
-app.use(cors())
+index.use(cors())
 mongoose.set('strictQuery',true);
 
 // routes
-app.use("/",orderRouter)
-app.use("/",cartRouter)
-app.use("/",authrouter)
-app.use("/",productRouter)
-app.use("/",adminRouter)
+index.use("/",orderRouter)
+index.use("/",cartRouter)
+index.use("/",authrouter)
+index.use("/",productRouter)
+index.use("/",adminRouter)
 
 
 
 // welcome side
-app.get('/',(req,res)=>{
+index.get('/',(req,res)=>{
     res.status(200).send("welcome to E-commerce Api")
 })
 
 
-app.use(fileUpload({
+index.use(fileUpload({
     useTempFiles:true
 }))
 
-app.use('/image', express.static('images'));
+index.use('/image', express.static('images'));
 
 
-app.set('views', path.join('views'))
-app.set('view engine', 'ejs')
+index.set('views', path.join('views'))
+index.set('view engine', 'ejs')
 
 const PORT=process.env.PORT||8000
 // connect mongo db atlas
