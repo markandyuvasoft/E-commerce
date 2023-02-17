@@ -11,7 +11,7 @@ import cartRouter from "./routes/cart.js";
 import orderRouter from "./routes/order.js";
 import adminRouter from "./routes/admin.js";
 import *as path from 'path'
-import fileUpload from 'express-fileupload'
+// import fileUpload from 'express-fileupload'
 dotenv.config()
 const index=express();
 
@@ -38,9 +38,9 @@ index.get('/',(req,res)=>{
 })
 
 
-index.use(fileUpload({
-    useTempFiles:true
-}))
+// index.use(fileUpload({
+//     useTempFiles:true
+// }))
 
 index.use('/image', express.static('images'));
 
