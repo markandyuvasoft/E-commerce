@@ -30,13 +30,19 @@ const postProduct = async (req, res, next) => {
         if (!title || !price || !description || !image) {
           res.status(400).send({ error: "please fill the data" });
   
-        } else {
+        } else if(price<1 || price>10){
+
+          return res.status(400).send({error:"product price should be in between 1 to 10"})
+        }
+        
+        else {
           (req.user.password = undefined), // password ko show nhi krwane ke ley
           (req.user.cPassword = undefined),
           (req.user.email = undefined),
           (req.user.token = undefined),
           (req.user.firstName = undefined);
           (req.user.isAdmin = undefined);
+
           
           
           const user = new Product({
@@ -118,7 +124,7 @@ const deleteProduct = async (req,res,next) =>{
     }
     catch(error)
     {
-        res.status(500).send(error)
+        res.status(500).send(error.message)
     }
 }
 
@@ -126,29 +132,50 @@ const deleteProduct = async (req,res,next) =>{
 const updateProduct = async (req,res,next) =>{
 
   try {
-    const {  title, price ,description} = req.body;
-    const _id= req.params.id
 
-    const image= req.file.path
+    const { title, price ,description } = req.body;
+    if (!req.file) {
+      res.status(401).send({ message: "please select image" });
+    }
+    else if(price<1 || price>10){
 
-    var user = await Product.findByIdAndUpdate(_id,{
-      title,price,description,
-      image,
-      new:true
-    })
-    user.save()
-
-    res.status(200).json({
-      status: "Success",
-       message: 'Post updated!',
-       post:user
-    })
+      return res.status(400).send({error:"product price should be in between 1 to 10"})
+    }
+    else {
     
+      let image = req.file.path;
+      const _id = req.params.id;
+    
+      let users = await Product.findById(req.params.id);
+      const dis = await cloudinary.uploader.destroy(image);
+    
+      let result;
+      if (dis) {
+        result = await cloudinary.uploader.upload(image);
+      }
+    
+      var user = await Product.findByIdAndUpdate(
+        _id,
+        {
+          title,price,description,
+          image: result?.secure_url,
+        },
+        { new: true }
+      )
+      user.save();
+    
+      res.status(200).json({
+        status: "Success",
+        message: "Product updated!",
+        Product: user,
+      });
+    }
   } catch (error) {
-    res.status(400).send({error:"token is invalid user not found"})
+  res.status(400).send({error:error.message})
+    
   }
-
 }
+
 
 // deshboard products
 const dashProduct = async (req,res,next) =>{
@@ -165,7 +192,7 @@ const dashProduct = async (req,res,next) =>{
   }
     catch(error)
     {
-    res.status(400).send({error: error})
+    res.status(400).send({error: error.message})
     }
 }
 
@@ -190,7 +217,7 @@ const pagination = async (req,res,next) =>{
 
   } catch (error) {
 
-   res.status(400).send(error)
+   res.status(400).send(error.message)
   }
 }
 
@@ -213,7 +240,7 @@ const search = async (req,res) =>{
     });
   } catch (error) {
 
-    res.status(400).send(error)
+    res.status(400).send(error.message)
   }
 }
 

@@ -24,7 +24,7 @@ productRouter.get("/get/:id",checkauth,productController.getProduct)
 
 productRouter.delete("/delete/:id",[checkauth,adminAuth],productController.deleteProduct)
 
-productRouter.put("/update/:id",[checkauth,adminAuth],productController.updateProduct)
+productRouter.put("/update/:id",upload,[checkauth,adminAuth],productController.updateProduct)
 
 
 
