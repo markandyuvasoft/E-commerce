@@ -9,7 +9,7 @@ const postCart = async (req,res)=>{
 
     const postedby = req.user._id
 
-    const { itemId, quantity } = req.body
+    var { itemId, quantity } = req.body
 
     try {
 
@@ -36,7 +36,9 @@ const postCart = async (req,res)=>{
 
             let product = cart.items[itemIndex]
 
-            product.quantity += quantity
+            product.quantity++
+
+            // ++quantity
 
             cart.bill = cart.items.reduce((acc, curr) => {   // reduct=> price ko add kr rha hai 100+100=200
                  return acc + curr.quantity * curr.price     // curr= current price
@@ -71,7 +73,7 @@ const postCart = async (req,res)=>{
 
     } catch (error) {
 // console.log(error);  
-res.status(400).send("somethig wrong")      
+res.status(400).send(error.message)      
     }
 
 }

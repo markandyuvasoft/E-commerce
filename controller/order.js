@@ -65,8 +65,8 @@ const postOrder = async (req, res) => {
           }),
   
           mode: "payment",
-          success_url: "http://localhost:8000/success",
-          cancel_url: "http://localhost:8000/cancel",
+          success_url: "https://ecom-vkxe.onrender.com/success",
+          cancel_url: "https://ecom-vkxe.onrender.com/cancel",
         });
         res.send({ url: session.url });
         const del = await Cart.findByIdAndDelete(cart);
