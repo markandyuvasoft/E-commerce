@@ -8,6 +8,9 @@ const cartRouter = express.Router()
 
 cartRouter.post('/cart',addcartvali,checkauth,cartController.postCart)
 
+cartRouter.post('/cart/increment',checkauth,cartController.incrementCart)
+
+
 cartRouter.get('/cart/get',checkauth,cartController.getCart)
 
 cartRouter.delete('/cart/delete/',checkauth,cartController.deleteCart)

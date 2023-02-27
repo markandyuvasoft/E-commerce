@@ -78,6 +78,74 @@ res.status(400).send(error.message)
 
 }
 
+const incrementCart = async (req,res) =>{
+    const postedby = req.user._id
+
+    var { itemId, action } = req.body
+    
+    try {
+    
+        const cart = await Cart.findOne({ postedby })
+    
+        const item = await Product.findOne({ _id: itemId })
+    
+        if(!item) {
+            res.status(401).send({message: "item not found"})
+            
+            return
+        } 
+        const price = item.price
+        const title = item.title
+    
+        // if cart already exists for user
+        if(cart) {
+            const itemIndex = cart.items.findIndex((item) => item.itemId == itemId)   // findindex= items ko findout kr rha hai id ki help se..
+            
+            //check if product exist or not
+            if(itemIndex > -1) {
+                let product = cart.items[itemIndex]
+    
+                if (action === 'increment') {
+                    product.quantity++
+                } else if (action === 'decrement' && product.quantity > 1) {
+                    product.quantity--
+                } else {
+                    return res.status(400).send({message: "invalid action"})
+                }
+    
+                cart.bill = cart.items.reduce((acc, curr) => {   // reduce=> price ko add kr rha hai 100+100=200
+                    return acc + curr.quantity * curr.price     // curr= current price
+                },0)
+    
+                cart.items[itemIndex] = product
+    
+                await cart.save()
+    
+                res.status(200).send(cart)
+            } else {
+                cart.items.push({ itemId, title, quantity: 1, price })
+                cart.bill = cart.items.reduce((acc, curr) => {   // reduce=> price ko add kr rha hai 100+100=200
+                    return acc + curr.quantity * curr.price     // curr= current price
+                },0)
+    
+                await cart.save()
+                res.status(200).send(cart)
+            }
+        } else {
+            // no cart exists, create one 
+            const newCart = await Cart.create({
+                postedby,
+                items: [{ itemId, title, quantity: 1, price }],
+                bill: price
+            })
+            return res.status(200).send(newCart)
+        }
+    } catch (error) {
+        res.status(400).send(error.message)      
+    }
+}
+
+
 
 // get cart api
 const  getCart = async (req,res) => {
@@ -149,4 +217,4 @@ const deleteCart = async (req,res) => {
 }
 
 
-export default {cartController, postCart, getCart, deleteCart}
+export default {cartController, postCart, getCart, deleteCart, incrementCart}
