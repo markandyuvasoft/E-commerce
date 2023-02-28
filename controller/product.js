@@ -131,49 +131,86 @@ const deleteProduct = async (req,res,next) =>{
 // update product
 const updateProduct = async (req,res,next) =>{
 
+  // try {
+
+  //   const { title, price ,description } = req.body;
+  //   if (!req.file) {
+  //     res.status(401).send({ message: "please select image" });
+  //   }
+  //   else if(price<1 || price>10){
+
+  //     return res.status(400).send({error:"product price should be in between 1 to 10"})
+  //   }
+  //   else {
+    
+  //     let image = req.file.path;
+  //     const _id = req.params.id;
+    
+  //     let users = await Product.findById(req.params.id);
+  //     const dis = await cloudinary.uploader.destroy(image);
+    
+  //     let result;
+  //     if (dis) {
+  //       result = await cloudinary.uploader.upload(image);
+  //     }
+    
+  //     var user = await Product.findByIdAndUpdate(
+  //       _id,
+  //       {
+  //         title,price,description,
+  //         image: result?.secure_url,
+  //       },
+  //       { new: true }
+  //     )
+  //     user.save();
+    
+  //     res.status(200).json({
+  //       status: "Success",
+  //       message: "Product updated!",
+  //       Product: user,
+  //     });
+  //   }
+  // } catch (error) {
+  // res.status(400).send({error:error.message})
+    
+  // }
+
   try {
+  const id = req.params.id;
+  const { title, price ,description } = req.body;
 
-    const { title, price ,description } = req.body;
-    if (!req.file) {
-      res.status(401).send({ message: "please select image" });
-    }
-    else if(price<1 || price>10){
+  Product.findByIdAndUpdate(id, req.body)
+  .then((product) => {
+    if (!product) {
+      res.status(404).send("product not found")
+    
+    }else {
+      (product.title = title),
+        (product.price = price),
+        (product.description = description)
 
-      return res.status(400).send({error:"product price should be in between 1 to 10"})
-    }
-    else {
-    
-      let image = req.file.path;
-      const _id = req.params.id;
-    
-      let users = await Product.findById(req.params.id);
-      const dis = await cloudinary.uploader.destroy(image);
-    
-      let result;
-      if (dis) {
-        result = await cloudinary.uploader.upload(image);
+        if (req.file) {
+          cloudinary.uploader.upload(req.file.path, function (error, result) {
+            product.image = result.secure_url;
+            return product.save();
+          });
+        }
       }
-    
-      var user = await Product.findByIdAndUpdate(
-        _id,
-        {
-          title,price,description,
-          image: result?.secure_url,
-        },
-        { new: true }
-      )
-      user.save();
-    
-      res.status(200).json({
-        status: "Success",
-        message: "Product updated!",
-        Product: user,
-      });
-    }
+    })
+    .then(() => {
+      res.status(200).json({ success: "Product updated successfully" });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error updating Product");
+    });
   } catch (error) {
-  res.status(400).send({error:error.message})
-    
+    res.status(404).json({
+      status : "success",
+      message : error.message
+    })
   }
+
 }
 
 
