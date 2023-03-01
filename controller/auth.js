@@ -77,42 +77,87 @@ const authRegister = async (req, res, next) => {
 // };
 
 const authLogin = async (req, res, next) => {
+  // try {
+  //   const { email, password } = req.body;
+
+  //   if (!email || !password) {
+  //     res.status(400).send({ error: "please fill the proper field " });
+    
+  //   } else {
+  //     let user = await User.findOne({ email: req.body.email });
+
+  //     if (!user) {
+  //       return res.status(404).send({ error: "invalid email" });
+      
+  //     }
+  //     if (user.isAdmin === false) {
+  //       const token = await createtoken(user._id);
+  //       user.token = token;
+  //       const login = await user.save();
+  //       let Id = user._id;
+  //       return res.status(200).json({ success: "Welcome user..!!", token, Id });
+  //     }
+      
+  //      else {
+  //       const checkpassword = await bcrypt.compare(
+  //       req.body.password,
+  //       user.password
+  //     );
+
+  //     if (!checkpassword) {
+  //       return res.status(404).send({ error: "invalid password" });
+  //     }
+  //       const token = await createtoken(user._id);
+  //       user.token = token;
+  //       const login = await user.save();
+  //       let Id = user._id;
+  //       res.status(200).json({ success: "Welcome admin..!!", token, Id });
+      
+  //     }
+  //   }
+  // } catch (error) {
+  //   res.status(401).json({ message: error.message });
+  // }
+
+
   try {
     const { email, password } = req.body;
-
+  
     if (!email || !password) {
-      res.status(400).send({ error: "please fill the proper field " });
-    
+      res.status(400).send({ error: "Please fill in all fields" });
     } else {
       let user = await User.findOne({ email: req.body.email });
-
+  
       if (!user) {
-        return res.status(404).send({ error: "invalid email" });
-      
-      }
-      if (user.isAdmin === false) {
+        return res.status(404).send({ error: "Invalid email" });
+      } else if (user.isAdmin === false) {
+        // User login
+        const checkPassword = await bcrypt.compare(
+          req.body.password,
+          user.password
+        );
+        if (!checkPassword) {
+          return res.status(404).send({ error: "Invalid password" });
+        }
         const token = await createtoken(user._id);
         user.token = token;
         const login = await user.save();
         let Id = user._id;
         return res.status(200).json({ success: "Welcome user..!!", token, Id });
-      }
-      
-       else {
-        const checkpassword = await bcrypt.compare(
-        req.body.password,
-        user.password
-      );
-
-      if (!checkpassword) {
-        return res.status(404).send({ error: "invalid password" });
-      }
+      } else {
+        // Admin login
+        const checkPassword = await bcrypt.compare(
+          req.body.password,
+          user.password
+        );
+        if (!checkPassword) {
+          return res.status(404).send({ error: "Invalid password" });
+        }
         const token = await createtoken(user._id);
         user.token = token;
         const login = await user.save();
         let Id = user._id;
-        res.status(200).json({ success: "Welcome admin..!!", token, Id });
-      
+        return res.status(200).json({ success: "Welcome admin..!!", token, Id });
       }
     }
   } catch (error) {
