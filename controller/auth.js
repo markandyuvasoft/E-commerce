@@ -123,36 +123,45 @@ const authLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
   
-    if (!email || !password) {
-      res.status(400).send({ error: "Please fill in all fields" });
+    if (!email || !password ) {
+      res.status(400).json({ error: "please fill the proper field " });
     } else {
       let user = await User.findOne({ email: req.body.email });
   
       if (!user) {
-        return res.status(404).send({ error: "Invalid email" });
-      } else if (user.isAdmin === false) {
-        // User login
-        const checkPassword = await bcrypt.compare(
+        return res.status(404).json({ error: "invalid email" });
+      } 
+  
+      // Check if user is verified
+      if (!user.isVarified) {
+        return res.status(401).json({ error: "unverified account" });
+      }
+  
+      if (user.isAdmin === false) {
+        const checkpassword = await bcrypt.compare(
           req.body.password,
           user.password
         );
-        if (!checkPassword) {
-          return res.status(404).send({ error: "Invalid password" });
+  
+        if (!checkpassword) {
+          return res.status(404).json({ error: "invalid password" });
         }
+  
         const token = await createtoken(user._id);
         user.token = token;
         const login = await user.save();
         let Id = user._id;
         return res.status(200).json({ success: "Welcome user..!!", token, Id });
       } else {
-        // Admin login
-        const checkPassword = await bcrypt.compare(
+        const checkpassword = await bcrypt.compare(
           req.body.password,
           user.password
         );
-        if (!checkPassword) {
-          return res.status(404).send({ error: "Invalid password" });
+  
+        if (!checkpassword) {
+          return res.status(404).json({ error: "invalid password" });
         }
+  
         const token = await createtoken(user._id);
         user.token = token;
         const login = await user.save();
