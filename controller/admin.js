@@ -230,7 +230,10 @@ const allAuthUser = async (req,res) =>{
   try {  
     // const user = await User.find({ $or: [{ isAdmin: false }, { isAdmin: false }] })
 
-  const user = await User.find({isAdmin: false}).select('-password -cPassword')
+    // const user = await User.find({isAdmin: false}).select('-password -cPassword')
+  
+    const user = await User.find({}).select('-password -cPassword')
+
 
   if(user){
     res.status(200).send({userList:user})
