@@ -151,7 +151,7 @@ const authLogin = async (req, res, next) => {
         user.token = token;
         const login = await user.save();
         let Id = user._id;
-        return res.status(200).json({ success: "Welcome user..!!", token, Id });
+        return res.status(200).json({ success: "Welcome user..!!", Id });
       } else {
         const checkpassword = await bcrypt.compare(
           req.body.password,
@@ -166,7 +166,7 @@ const authLogin = async (req, res, next) => {
         user.token = token;
         const login = await user.save();
         let Id = user._id;
-        return res.status(200).json({ success: "Welcome admin..!!", token, Id });
+        return res.status(200).json({ success: "Welcome admin..!!", Id });
       }
     }
   } catch (error) {
