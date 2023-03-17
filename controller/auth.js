@@ -177,30 +177,26 @@ const authLogin = async (req, res, next) => {
 // change password...
 const changePassword = async (req, res) => {
   try {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    const data = await User.findOne({ email: email });
-
-    if (data) {
-      const newpswd = await secure(password);
-
-      const userdata = await User.findOneAndUpdate(
-        { email: email },
-        {
-          $set: {
-            password: newpswd,
-          },
-        }
-      );
-      res.status(200).send({ success: "successfully change your password" });
-    } else {
-      res.status(400).send({ error: "user not found please try again" });
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+    const passwordMatched = await bcrypt.compare(oldPassword, user.password);
+  
+    if (!passwordMatched) {
+      return res.status(400).json({ message: "Current password is incorrect" });
     }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+  
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).json({
+      message: "Password changed successfully",
+    });
   } catch (error) {
-    res.status(400).send(error);
-  }
-};
+    res.status(400).json({
+      message : error.message
+    });
+  }}
 
 // get user profile
 const getUser = async (req, res) => {
